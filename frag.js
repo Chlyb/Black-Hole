@@ -11,8 +11,9 @@ var fragCode = `
   uniform float m;
   uniform vec3 cam_pos;
   varying vec2 coord;  
-  uniform float fovH;
-  uniform float fovV;
+  uniform samplerCube u_skybox;
+  uniform float fov_h;
+  uniform float fov_v;
 
   float angleBetween(vec3 a, vec3 b){
     float d = dot(normalize(a),normalize(b));
@@ -28,14 +29,14 @@ var fragCode = `
     
     vec3 cam_dir = normalize(-cam_pos);
 
-    vec3 up = vec3(0,1,0);
-    vec3 right = cross(cam_dir, up);                   
-    vec3 cam_up = cross(right, cam_dir);
+    vec3 up = vec3(0.0,1.0,0.0);
+    vec3 right = normalize( cross(cam_dir, up));                   
+    vec3 cam_up = normalize( cross(right, cam_dir));
   
     vec3 pos = cam_pos;
     vec3 vel = cam_dir;
-    vel = vel + cam_up * coord.y * fovV;
-    vel = vel + right * coord.x * fovH;
+    vel = vel + cam_up * coord.y * fov_v;
+    vel = vel + right * coord.x * fov_h;
     vel = normalize(vel) * c;
 
     vec3 vel_front = normalize(cam_dir);
@@ -79,5 +80,6 @@ var fragCode = `
 
       pos += vel*dt;
     }
-    gl_FragColor = vec4(0.1,0.1,0.1, 1.0);
+    //gl_FragColor = vec4(0.1,0.1,0.1, 1.0);
+    gl_FragColor = textureCube(u_skybox, normalize(vel));
   }`;
